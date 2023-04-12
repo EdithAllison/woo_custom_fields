@@ -14,6 +14,8 @@ class Setup {
 	public function __construct() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts' ) );
 		add_action( 'admin_menu', array( $this, 'register_page' ) );
+
+		include_once dirname( MAIN_PLUGIN_FILE ) . '/includes/admin/class-product-fields.php';
 	}
 
 	/**
