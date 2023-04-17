@@ -2,75 +2,91 @@
  * External dependencies
  */
 import { addFilter } from '@wordpress/hooks';
-import { __ } from '@wordpress/i18n';
-import { Dropdown } from '@wordpress/components';
-import * as Woo from '@woocommerce/components';
 import { Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { getSetting } from '@woocommerce/settings';
+import { CurrencyFactory } from '@woocommerce/currency';
 
 /**
  * Internal dependencies
  */
 import './index.scss';
 
-const MyExamplePage = () => (
-	<Fragment>
-		<Woo.Section component="article">
-			<Woo.SectionHeader title={ __( 'Search', 'woo-custom-fields' ) } />
-			<Woo.Search
-				type="products"
-				placeholder="Search for something"
-				selected={ [] }
-				onChange={ ( items ) => setInlineSelect( items ) }
-				inlineTags
-			/>
-		</Woo.Section>
+const CURRENCY = getSetting( 'currency' );
 
-		<Woo.Section component="article">
-			<Woo.SectionHeader title={ __( 'Dropdown', 'woo-custom-fields' ) } />
-			<Dropdown
-				renderToggle={ ( { isOpen, onToggle } ) => (
-					<Woo.DropdownButton
-						onClick={ onToggle }
-						isOpen={ isOpen }
-						labels={ [ 'Dropdown' ] }
-					/>
-				) }
-				renderContent={ () => <p>Dropdown content here</p> }
-			/>
-		</Woo.Section>
+const { formatAmount, formatDecimal } = CurrencyFactory( CURRENCY );
 
-		<Woo.Section component="article">
-			<Woo.SectionHeader title={ __( 'Pill shaped container', 'woo-custom-fields' ) } />
-			<Woo.Pill className={ 'pill' }>
-				{ __( 'Pill Shape Container', 'woo-custom-fields' ) }
-			</Woo.Pill>
-		</Woo.Section>
 
-		<Woo.Section component="article">
-			<Woo.SectionHeader title={ __( 'Spinner', 'woo-custom-fields' ) } />
-			<Woo.H>I am a spinner!</Woo.H>
-			<Woo.Spinner />
-		</Woo.Section>
+/**
+ * Cost
+ */
 
-		<Woo.Section component="article">
-			<Woo.SectionHeader title={ __( 'Datepicker', 'woo-custom-fields' ) } />
-			<Woo.DatePicker
-				text={ __( 'I am a datepicker!', 'woo-custom-fields' ) }
-				dateFormat={ 'MM/DD/YYYY' }
-			/>
-		</Woo.Section>
-	</Fragment>
-);
+const addTableColumnProducts = reportTableData => {
 
-addFilter( 'woocommerce_admin_pages_list', 'woo-custom-fields', ( pages ) => {
-	pages.push( {
-		container: MyExamplePage,
-		path: '/woo-custom-fields',
-		breadcrumbs: [ __( 'Woo Custom Fields', 'woo-custom-fields' ) ],
-		navArgs: {
-			id: 'woo_custom_fields',
+	if (
+		reportTableData.endpoint !== 'products' ||
+		! reportTableData.items ||
+		! reportTableData.items.data ||
+		! reportTableData.items.data.length
+	) {
+		return reportTableData;
+	}
+
+	const newHeaders = [
+		...reportTableData.headers,
+		{
+			label: __( 'Cost', 'woo_custom_fields' ),
+			key: 'cost',
+			isNumeric: true,
 		},
+		{
+			label: __( 'Margin', 'woo_custom_fields' ),
+			key: 'margin',
+			isNumeric: true,
+		},
+	];
+	const newRows = reportTableData.rows.map( ( row, index ) => {
+		const item = reportTableData.items.data[ index ];
+		const newRow = [
+			...row,
+			{
+				display: formatAmount( item.cost ),
+				value: item.cost,
+			},
+			{
+				display: formatAmount( item.margin ),
+				value: item.margin,
+			},
+		];
+		return newRow;
 	} );
 
-	return pages;
-} );
+
+	const newTotals = {
+		...reportTableData.totals,
+		markup: reportTableData.totals.margin / reportTableData.totals.cost,
+	};
+
+
+	const newSummary = [
+		...reportTableData.summary,
+		{
+			label: __( 'Cost', 'woo_custom_fields' ),
+			value: formatAmount( newTotals.cost ),
+		},
+		{
+			label: __( 'Margin', 'woo_custom_fields' ),
+			value:  formatAmount( newTotals.margin ),
+		},
+	];
+
+
+	reportTableData.headers = newHeaders;
+	reportTableData.rows    = newRows;
+	reportTableData.totals  = newTotals;
+	reportTableData.summary = newSummary;
+
+	return reportTableData;
+};
+
+addFilter( 'woocommerce_admin_report_table', 'costreport', addTableColumnProducts );

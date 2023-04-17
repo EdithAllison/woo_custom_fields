@@ -22,6 +22,9 @@ if ( ! defined( 'MAIN_PLUGIN_FILE' ) ) {
 require_once plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';
 
 use WooCustomFields\Admin\Setup;
+use WooCustomFields\Activator;
+use WooCustomFields\OrderItemMods;
+use WooCustomFields\ReportMods;
 
 // phpcs:disable WordPress.Files.FileName
 
@@ -42,11 +45,12 @@ register_activation_hook( __FILE__, 'woo_custom_fields_activate' );
  *
  * @since 0.1.0
  */
-function woo_custom_fields_activate() {
+function woo_custom_fields_activate( $network_wide ) {
 	if ( ! class_exists( 'WooCommerce' ) ) {
 		add_action( 'admin_notices', 'woo_custom_fields_missing_wc_notice' );
 		return;
 	}
+	Activator::activate( $network_wide );
 }
 
 if ( ! class_exists( 'woo_custom_fields' ) ) :
@@ -68,6 +72,8 @@ if ( ! class_exists( 'woo_custom_fields' ) ) :
 			if ( is_admin() ) {
 				new Setup();
 			}
+			new OrderItemMods();
+			new ReportMods();
 		}
 
 		/**

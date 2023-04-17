@@ -9,19 +9,20 @@ class Setup {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.0.0
+	 * @since 0.1.0
 	 */
 	public function __construct() {
-		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts' ) );
-		add_action( 'admin_menu', array( $this, 'register_page' ) );
 
-		include_once dirname( MAIN_PLUGIN_FILE ) . '/includes/admin/class-product-fields.php';
+		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts' ) );
+
+		new CustomFields();
+
 	}
 
 	/**
 	 * Load all necessary dependencies.
 	 *
-	 * @since 1.0.0
+	 * @since 0.1.0
 	 */
 	public function register_scripts() {
 		if ( ! method_exists( 'Automattic\WooCommerce\Admin\PageController', 'is_admin_or_embed_page' ) ||
@@ -60,24 +61,4 @@ class Setup {
 		wp_enqueue_style( 'woo-custom-fields' );
 	}
 
-	/**
-	 * Register page in wc-admin.
-	 *
-	 * @since 1.0.0
-	 */
-	public function register_page() {
-
-		if ( ! function_exists( 'wc_admin_register_page' ) ) {
-			return;
-		}
-
-		wc_admin_register_page(
-			array(
-				'id'     => 'woo_custom_fields-example-page',
-				'title'  => __( 'Woo Custom Fields', 'woo_custom_fields' ),
-				'parent' => 'woocommerce',
-				'path'   => '/woo-custom-fields',
-			)
-		);
-	}
 }
