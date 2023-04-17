@@ -24,5 +24,11 @@
 		"@woocommerce/eslint-plugin": "^2.2.0",
 		"@wordpress/prettier-config": "^2.13.0",
 		"@wordpress/scripts": "^24.6.0"
+	},
+	"scripts": {
+		"build": "wp-scripts build",
+		"start": "wp-scripts start",
+		"make-pot": "wp i18n make-pot . languages/woo_custom_fields.pot --slug=woo_custom_fields --domain=woo_custom_fields --exclude=node_modules,src",
+		"make-json": "wp i18n make-json languages/ --no-purge"
 	}
 }

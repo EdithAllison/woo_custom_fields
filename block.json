@@ -5,7 +5,7 @@
 	"version": "0.1.0",
 	"title": "Woo Custom Fields",
 	"category": "widgets",
-	"textdomain": "woo-custom-fields",
+	"textdomain": "woo_custom_fields",
 	"editorScript": "file:./build/index.js",
 	"editorStyle": "file:./build/index.css",
 	"style": "file:./build/style-index.css"
