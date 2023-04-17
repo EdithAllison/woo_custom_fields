@@ -45,12 +45,12 @@ register_activation_hook( __FILE__, 'woo_custom_fields_activate' );
  *
  * @since 0.1.0
  */
-function woo_custom_fields_activate( $network_wide ) {
+function woo_custom_fields_activate() {
 	if ( ! class_exists( 'WooCommerce' ) ) {
 		add_action( 'admin_notices', 'woo_custom_fields_missing_wc_notice' );
 		return;
 	}
-	Activator::activate( $network_wide );
+	Activator::activate();
 }
 
 if ( ! class_exists( 'woo_custom_fields' ) ) :
