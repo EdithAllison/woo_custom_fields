@@ -2,9 +2,7 @@
 	"name": "extension/woo-custom-fields",
 	"description": "WooCommerce plugin",
 	"autoload": {
-		"psr-4": {
-			"WooCustomFields\\": "includes/"
-		}
+		"classmap": ["includes/", "includes/admin/"]
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^9.0",
